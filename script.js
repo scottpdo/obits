@@ -3,7 +3,9 @@ const axios = require("axios");
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
-const urls = fs.readFileSync("./urls.txt", "utf-8").split("\n");
+const year = 1899;
+
+const urls = fs.readFileSync(`./sources/${year}.txt`, "utf-8").split("\n");
 
 urls.forEach(url => {
   axios(url).then(res => {
@@ -23,9 +25,9 @@ urls.forEach(url => {
       }
       output = output.replace(/\[\d*\]/g, "");
       output = output.trim();
-      console.log(output);
+      if (!fs.existsSync(`./obits/${year}`)) fs.mkdirSync(`./obits/${year}`);
       fs.writeFileSync(
-        "./obits/" + title.toLowerCase().replace(/[^a-z]/g, "") + ".txt",
+        `./obits/${year}/${title.toLowerCase().replace(/[^a-z]/g, "")}.txt`,
         output,
         "utf-8"
       );
