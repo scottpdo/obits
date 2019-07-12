@@ -7,7 +7,9 @@ const baseUrl = "https://en.wikipedia.org";
 const allUrls = {};
 
 // getObitURLs(1700);
-getObitsForYear(1700);
+for (let i = 1701; i < 1750; i++) {
+  getObitsForYear(i);
+}
 
 function getObitURLs(year, fetchUrl) {
   if (!fetchUrl) fetchUrl = `${baseUrl}/wiki/Category:${year}_deaths`;
@@ -35,6 +37,7 @@ function getObitURLs(year, fetchUrl) {
 
 function getObitsForYear(year) {
   const urls = fs.readFileSync(`./sources/${year}.txt`, "utf-8").split("\n");
+  const obits = [];
   urls.forEach(url => {
     axios(url).then(res => {
       console.log(url);
@@ -45,22 +48,20 @@ function getObitsForYear(year) {
         const h = headings[i];
         if (!h.textContent.toLowerCase().includes("death")) continue;
 
-        let output = title + "\n\n";
+        let output = "# " + title;
         let current = h.nextSibling;
         while (current.tagName !== "H2" && current.tagName !== "H3") {
           output += current.textContent + "\n";
           current = current.nextSibling;
         }
         output = output.replace(/\[\d*\]/g, "");
-        output = output.trim();
+        output = output.trim() + "\n";
+        obits.push(output);
         if (!fs.existsSync(`./obits/${year}`)) fs.mkdirSync(`./obits/${year}`);
-        fs.writeFileSync(
-          `./obits/${year}/${title.toLowerCase().replace(/[^a-z]/g, "")}.txt`,
-          output,
-          "utf-8"
-        );
+
         break;
       }
+      fs.writeFileSync(`./obits/${year}.txt`, obits.join("\n"), "utf-8");
     });
   });
 }
