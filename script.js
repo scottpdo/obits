@@ -7,7 +7,7 @@ const baseUrl = "https://en.wikipedia.org";
 const allUrls = {};
 
 // getObitURLs(1700);
-for (let i = 1703; i < 1750; i++) {
+for (let i = 1751; i < 1801; i++) {
   getObitsForYear(i);
 }
 
