@@ -7,7 +7,7 @@ const baseUrl = "https://en.wikipedia.org";
 const allUrls = {};
 
 // getObitURLs(1700);
-for (let i = 1701; i < 1750; i++) {
+for (let i = 1703; i < 1750; i++) {
   getObitsForYear(i);
 }
 
@@ -37,31 +37,37 @@ function getObitURLs(year, fetchUrl) {
 
 function getObitsForYear(year) {
   const urls = fs.readFileSync(`./sources/${year}.txt`, "utf-8").split("\n");
+  let i = 0;
   const obits = [];
-  urls.forEach(url => {
-    axios(url).then(res => {
-      console.log(url);
-      const { document } = new JSDOM(res.data).window;
-      const title = document.querySelector("h1").textContent;
-      const headings = Array.from(document.querySelectorAll("h2, h3"));
-      for (let i = 0; i < headings.length; i++) {
-        const h = headings[i];
-        if (!h.textContent.toLowerCase().includes("death")) continue;
 
-        let output = "# " + title;
-        let current = h.nextSibling;
-        while (current.tagName !== "H2" && current.tagName !== "H3") {
-          output += current.textContent + "\n";
-          current = current.nextSibling;
-        }
-        output = output.replace(/\[\d*\]/g, "");
-        output = output.trim() + "\n";
-        obits.push(output);
-        if (!fs.existsSync(`./obits/${year}`)) fs.mkdirSync(`./obits/${year}`);
+  function handle(res) {
+    console.log(urls[i]);
+    const { document } = new JSDOM(res.data).window;
+    const title = document.querySelector("h1").textContent;
+    const headings = Array.from(document.querySelectorAll("h2, h3"));
+    for (let i = 0; i < headings.length; i++) {
+      const h = headings[i];
+      if (!h.textContent.toLowerCase().includes("death")) continue;
 
-        break;
+      let output = "# " + title;
+      let current = h.nextSibling;
+      while (current.tagName !== "H2" && current.tagName !== "H3") {
+        output += current.textContent + "\n";
+        current = current.nextSibling;
       }
-      fs.writeFileSync(`./obits/${year}.txt`, obits.join("\n"), "utf-8");
-    });
-  });
+      output = output.replace(/\[\d*\]/g, "");
+      output = output.trim() + "\n";
+      obits.push(output);
+
+      break;
+    }
+    fs.writeFileSync(`./obits/${year}.txt`, obits.join("\n"), "utf-8");
+
+    if (i < urls.length - 1) {
+      i++;
+      axios(urls[i]).then(handle);
+    }
+  }
+
+  axios(urls[i]).then(handle);
 }
