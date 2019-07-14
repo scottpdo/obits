@@ -7,7 +7,7 @@ const baseUrl = "https://en.wikipedia.org";
 const allUrls = {};
 
 // getObitURLs(1700);
-for (let i = 1751; i < 1801; i++) {
+for (let i = 1700; i < 1701; i++) {
   getObitsForYear(i);
 }
 
@@ -49,10 +49,10 @@ function getObitsForYear(year) {
       const h = headings[i];
       if (!h.textContent.toLowerCase().includes("death")) continue;
 
-      let output = "# " + title;
+      let output = "# " + title + "\n\n";
       let current = h.nextSibling;
       while (current.tagName !== "H2" && current.tagName !== "H3") {
-        output += current.textContent + "\n";
+        if (current.tagName === "P") output += current.textContent + "\n";
         current = current.nextSibling;
       }
       output = output.replace(/\[\d*\]/g, "");
@@ -61,11 +61,12 @@ function getObitsForYear(year) {
 
       break;
     }
-    fs.writeFileSync(`./obits/${year}.txt`, obits.join("\n"), "utf-8");
 
     if (i < urls.length - 1) {
       i++;
       axios(urls[i]).then(handle);
+    } else {
+      fs.writeFileSync(`./obits/${year}.txt`, obits.join("\n"), "utf-8");
     }
   }
 
