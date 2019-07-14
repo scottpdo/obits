@@ -7,7 +7,7 @@ const baseUrl = "https://en.wikipedia.org";
 const allUrls = {};
 
 // getObitURLs(1700);
-for (let i = 1700; i < 1701; i++) {
+for (let i = 1702; i < 1703; i++) {
   getObitsForYear(i);
 }
 
@@ -52,7 +52,8 @@ function getObitsForYear(year) {
       let output = "# " + title + "\n\n";
       let current = h.nextSibling;
       while (current.tagName !== "H2" && current.tagName !== "H3") {
-        if (current.tagName === "P") output += current.textContent + "\n";
+        if (["P", "BLOCKQUOTE"].includes(current.tagName))
+          output += current.textContent + "\n";
         current = current.nextSibling;
       }
       output = output.replace(/\[\d*\]/g, "");
